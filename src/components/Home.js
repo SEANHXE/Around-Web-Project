@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/Home.css';
 import { Tabs, Button } from 'antd';
-import { GEOLOCATION_OPTIONS } from '../constants';
+import { GEOLOCATION_OPTIONS, POSITION_KEY } from '../constants';
 const { TabPane } = Tabs;
 
 export class Home extends React.Component {
@@ -35,6 +35,8 @@ export class Home extends React.Component {
       errorMessage: null,
     });
     console.log(position);
+    const {latitude, longitude} = position.coords;
+    localStorage.setItem(POSITION_KEY, JSON.stringify({latitude, longitude}));
   }
 
   onGeolocationFailure = () => {
