@@ -54,8 +54,8 @@ export class Home extends React.Component {
       errorMessage: null,
     });
 
-    const   position = JSON.parse(localStorage.getItem(POSITION_KEY));
-    const  range = 20;
+    const position = JSON.parse(localStorage.getItem(POSITION_KEY));
+    const range = 20000;
     const token = localStorage.getItem(TOKEN_KEY);
 
     fetch(`${API_ROOT}/search?lat=${position.latitude}&lon=${position.longitude}&range=${range}`, {
