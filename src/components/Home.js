@@ -3,7 +3,7 @@ import '../styles/Home.css';
 import { Tabs, Button, Spin } from 'antd';
 import { Gallery } from './Gallery';
 import {API_ROOT, AUTH_HEADER, GEOLOCATION_OPTIONS, POSITION_KEY, TOKEN_KEY} from '../constants';
-
+//Stage 3 finish
 const { TabPane } = Tabs;
 
 export class Home extends React.Component {
@@ -138,6 +138,3 @@ export class Home extends React.Component {
     );
   }
 }
-
-
-
