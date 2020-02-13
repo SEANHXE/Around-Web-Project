@@ -1,7 +1,9 @@
 import React from 'react';
 import '../styles/Home.css';
-import { Tabs, Button } from 'antd';
+import { Tabs, Button, Spin } from 'antd';
+import { Gallery } from './Gallery';
 import {API_ROOT, AUTH_HEADER, GEOLOCATION_OPTIONS, POSITION_KEY, TOKEN_KEY} from '../constants';
+
 const { TabPane } = Tabs;
 
 export class Home extends React.Component {
@@ -9,6 +11,7 @@ export class Home extends React.Component {
     loadingGeolocation: false,
     loadingPosts: false,
     errorMessage: null,
+    posts: [],
   }
 
   getGeolocation() {
@@ -32,7 +35,7 @@ export class Home extends React.Component {
 
   onGeolocationSuccess = (position) => {
     this.setState({
-      loadingGeolocation: true,
+      loadingGeolocation: false,
       errorMessage: null,
     });
     console.log(position);
@@ -80,7 +83,38 @@ export class Home extends React.Component {
         errorMessage: error.message,
       })
     })
+  }
 
+  getImagePosts() {
+    if (this.state.errorMessage) {
+      return (
+          <div>
+            {this.state.errorMessage}
+          </div>
+      );
+    } else if (this.state.loadingGeolocation) {
+      return (
+          <Spin tip="Loading geolocation..." />
+      );
+    } else if (this.state.loadingPosts) {
+      return (
+          <Spin tip="Loading posts..."/>
+      );
+    } else if (this.state.posts.length > 0) {
+      const images = this.state.posts.map((post) => {
+        return {
+          user: post.user,
+          src: post.url,
+          thumbnail: post.url,
+          thumbnailWidth: 400,
+          thumbnailHeight: 300,
+          caption: post.message
+        }
+      });
+      return (<Gallery images={images} />);
+    } else {
+      return 'No nearby posts.';
+    }
   }
 
   componentDidMount() {
@@ -92,7 +126,7 @@ export class Home extends React.Component {
     return (
         <Tabs tabBarExtraContent={operations} className="main-tabs">
           <TabPane tab="Images Posts" key="1">
-            Content of tab 1
+            {this.getImagePosts()}
           </TabPane>
           <TabPane tab="Video Posts" key="2">
             Content of tab 2
