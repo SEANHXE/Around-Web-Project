@@ -43,14 +43,14 @@ class NormalCreatePostForm extends React.Component{
             ],
           })(<Input />)}
         </Form.Item>
-        <Form.Item label="Image">
-          {getFieldDecorator('image', {
+        <Form.Item label="Media">
+          {getFieldDecorator('media', {
             valuePropName: 'fileList',
             getValueFromEvent: this.normFile,
             rules: [
               {
                 required: true,
-                message: 'Please select an image!',
+                message: 'Please select an media!',
               },
             ],
           })(

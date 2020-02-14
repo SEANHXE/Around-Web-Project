@@ -1,9 +1,17 @@
 import React from 'react';
 import '../styles/Home.css';
-import { Tabs, Button, Spin } from 'antd';
+import { Tabs, Spin, Row, Col } from 'antd';
 import { Gallery } from './Gallery';
 import { CreatePostButton } from './CreatePostButton'
-import {API_ROOT, AUTH_HEADER, GEOLOCATION_OPTIONS, POSITION_KEY, TOKEN_KEY} from '../constants';
+import {
+  API_ROOT,
+  AUTH_HEADER,
+  GEOLOCATION_OPTIONS,
+  POSITION_KEY,
+  TOKEN_KEY,
+  POST_TYPE_IMAGE,
+  POST_TYPE_VIDEO
+} from '../constants';
 //Stage 4 Start
 const { TabPane } = Tabs;
 
@@ -59,7 +67,7 @@ export class Home extends React.Component {
     });
 
     const position = JSON.parse(localStorage.getItem(POSITION_KEY));
-    const range = 20;
+    const range = 2000;
     const token = localStorage.getItem(TOKEN_KEY);
 
     fetch(`${API_ROOT}/search?lat=${position.latitude}&lon=${position.longitude}&range=${range}`, {
@@ -86,7 +94,7 @@ export class Home extends React.Component {
     })
   }
 
-  getImagePosts() {
+  getPost(type) {
     if (this.state.errorMessage) {
       return (
           <div>
@@ -102,20 +110,52 @@ export class Home extends React.Component {
           <Spin tip="Loading posts..."/>
       );
     } else if (this.state.posts.length > 0) {
-      const images = this.state.posts.map((post) => {
-        return {
-          user: post.user,
-          src: post.url,
-          thumbnail: post.url,
-          thumbnailWidth: 400,
-          thumbnailHeight: 300,
-          caption: post.message
-        }
-      });
-      return (<Gallery images={images} />);
+      switch (type) {
+        case POST_TYPE_IMAGE:
+          return this.getImagePosts();
+        case POST_TYPE_VIDEO:
+          return this.getVideoPosts();
+        default:
+          throw new Error('Unknown post type');
+      }
     } else {
       return 'No nearby posts.';
     }
+  }
+
+  getVideoPosts() {
+    return (
+      <Row gutter={32}>
+        {
+          this.state.posts
+              .filter((post) => post.type=== POST_TYPE_VIDEO)
+              .map((post) => (
+                <Col className="gutter-row" span={6}>
+                  <video src={post.url} controls className="video-block" />
+                  <div>{`${post.user}: ${post.message}`}</div>
+                </Col>
+              ))
+        }
+
+      </Row>
+    );
+  }
+
+  getImagePosts() {
+    const images = this.state.posts
+    .filter((post) => post.type=== POST_TYPE_IMAGE)
+    .map((post) => {
+      return {
+        user: post.user,
+        src: post.url,
+        thumbnail: post.url,
+        thumbnailWidth: 400,
+        thumbnailHeight: 300,
+        caption: post.message
+      }
+    });
+
+    return (<Gallery images={images} />);
   }
 
   componentDidMount() {
@@ -127,10 +167,10 @@ export class Home extends React.Component {
     return (
         <Tabs tabBarExtraContent={operations} className="main-tabs">
           <TabPane tab="Images Posts" key="1">
-            {this.getImagePosts()}
+            {this.getPost(POST_TYPE_IMAGE)}
           </TabPane>
           <TabPane tab="Video Posts" key="2">
-            Content of tab 2
+            {this.getPost(POST_TYPE_VIDEO)}
           </TabPane>
           <TabPane tab="Maps" key="3">
             Content of tab 3

@@ -76,8 +76,8 @@ export class CreatePostButton extends React.Component {
     });
   };
 
-  saveFormRef = (formIntance) => {
-    this.form = formIntance;
+  saveFormRef = (formInstance) => {
+    this.form = formInstance;
   }
 
   render() {
