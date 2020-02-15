@@ -68,7 +68,7 @@ export class Home extends React.Component {
     });
 
     const position = JSON.parse(localStorage.getItem(POSITION_KEY));
-    const range = 2000;
+    const range = 200;
     const token = localStorage.getItem(TOKEN_KEY);
 
     fetch(`${API_ROOT}/search?lat=${position.latitude}&lon=${position.longitude}&range=${range}`, {
@@ -179,6 +179,7 @@ export class Home extends React.Component {
               loadingElement={<div style={{ height: `100%` }} />}
               containerElement={<div style={{ height: `700px` }} />}
               mapElement={<div style={{ height: `100%` }} />}
+              posts={this.state.posts}
             />
           </TabPane>
         </Tabs>

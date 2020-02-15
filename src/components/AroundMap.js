@@ -1,32 +1,27 @@
 import React from "react";
 import { withScriptjs, withGoogleMap, GoogleMap } from "react-google-maps"
 import {AroundMarker} from './AroundMarker'
+import {POSITION_KEY} from "../constants"
 export class NormalAroundMap extends React.Component {
   state = {
     isOpen: false,
   }
 
-  onToggleOpen = () => {
-    this.setState((prevState) => ({
-      isOpen: !prevState.isOpen,
-    }));
-  }
-
   render() {
+    const position = JSON.parse(localStorage.getItem(POSITION_KEY));
     return (
         <GoogleMap
-            defaultZoom={8}
-            defaultCenter={{ lat: -34.397, lng: 150.644 }}
+            defaultZoom={11}
+            defaultCenter={{ lat: position.latitude, lng: position.longitude }}
         >
-          <AroundMarker
-              position={{ lat: -34.397, lng: 150.644 }}
-          />
-          <AroundMarker
-              position={{ lat: -34.327, lng: 150.614 }}
-          />
-          <AroundMarker
-              position={{ lat: -34.357, lng: 150.624 }}
-          />
+          {
+            this.props.posts.map((post) => (
+                <AroundMarker
+                    post={post}
+                    key={post.url}
+                />
+            ))
+          }
         </GoogleMap>
     );
   }
