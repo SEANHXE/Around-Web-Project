@@ -68,6 +68,7 @@ export class Home extends React.Component {
     });
 
     const position = JSON.parse(localStorage.getItem(POSITION_KEY));
+    //const position = {"latitude": 37.4023554, "longitude": -122.09509510000001}
     const range = 200;
     const token = localStorage.getItem(TOKEN_KEY);
 
@@ -180,6 +181,7 @@ export class Home extends React.Component {
               containerElement={<div style={{ height: `700px` }} />}
               mapElement={<div style={{ height: `100%` }} />}
               posts={this.state.posts}
+              onChange={this.loadNearbyPost}
             />
           </TabPane>
         </Tabs>
