@@ -13,7 +13,7 @@ import {
   POST_TYPE_IMAGE,
   POST_TYPE_VIDEO
 } from '../constants';
-//Stage 5 Start
+//Stage 5 Finish
 const { TabPane } = Tabs;
 
 export class Home extends React.Component {
@@ -61,15 +61,18 @@ export class Home extends React.Component {
     });
   }
 
-  loadNearbyPost = () => {
+  loadNearbyPost = (
+      position = JSON.parse(localStorage.getItem(POSITION_KEY)),
+      range = 200,
+  ) => {
     this.setState({
       loadingPosts: true,
       errorMessage: null,
     });
 
-    const position = JSON.parse(localStorage.getItem(POSITION_KEY));
+    //const position = JSON.parse(localStorage.getItem(POSITION_KEY));
     //const position = {"latitude": 37.4023554, "longitude": -122.09509510000001}
-    const range = 200;
+    //const range = 200;
     const token = localStorage.getItem(TOKEN_KEY);
 
     fetch(`${API_ROOT}/search?lat=${position.latitude}&lon=${position.longitude}&range=${range}`, {
