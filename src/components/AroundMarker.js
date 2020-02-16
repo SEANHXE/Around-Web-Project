@@ -1,6 +1,8 @@
 import React from "react";
 import { Marker, InfoWindow } from "react-google-maps";
 import '../styles/AroundMarker.css';
+import {POST_TYPE_VIDEO, POST_TYPE_IMAGE, POST_TYPE_UNKNOWN} from "../constants"
+import blueMarker from '../assets/blue-marker.svg'
 
 export class AroundMarker extends React.Component{
   state = {
@@ -14,27 +16,74 @@ export class AroundMarker extends React.Component{
   }
 
   render() {
-    const {location, user, message, url} = this.props.post;
+    const {location, user, message, url, type} = this.props.post;
 
-    return (
-        <Marker
-            position={{
-              lat: location.lat,
-              lng: location.lon,
-            }}
-            onMouseOver={this.onToggleOpen}
-            onMouseOut={this.onToggleOpen}
-        >
-          {this.state.isOpen ?
-              <InfoWindow onCloseClick={this.onToggleOpen}>
-                <div>
-                  <img src={url} alt={message} className="around-marker-image" />
-                  <div>{`${user}: ${message}`}</div>
-                </div>
-              </InfoWindow>
-              :
-              null}
-        </Marker>
-    );
+    if (type === POST_TYPE_IMAGE) {
+      return (
+          <Marker
+              position={{
+                lat: location.lat,
+                lng: location.lon,
+              }}
+              onMouseOver={this.onToggleOpen}
+              onMouseOut={this.onToggleOpen}
+          >
+            {this.state.isOpen ?
+                <InfoWindow onCloseClick={this.onToggleOpen}>
+                  <div>
+                    <img src={url} alt={message} className="around-marker-image" />
+                    <div>{`${user}: ${message}`}</div>
+                  </div>
+                </InfoWindow>
+                :
+                null}
+          </Marker>
+      );
+    } else if (type === POST_TYPE_VIDEO) {
+      return (
+          <Marker
+              position={{
+                lat: location.lat,
+                lng: location.lon,
+              }}
+              onClick={this.onToggleOpen}
+              icon={{
+                url: blueMarker,
+                scaledSize: new window.google.maps.Size(26, 41),
+              }}
+          >
+            {this.state.isOpen ?
+                <InfoWindow onCloseClick={this.onToggleOpen}>
+                  <div>
+                    <video src={url} controls={true} alt={message} className="around-marker-video" />
+                    <div>{`${user}: ${message}`}</div>
+                  </div>
+                </InfoWindow>
+                :
+                null}
+          </Marker>
+      );
+    } else {
+      return (
+          <Marker
+              position={{
+                lat: location.lat,
+                lng: location.lon,
+              }}
+              onMouseOver={this.onToggleOpen}
+              onMouseOut={this.onToggleOpen}
+          >
+            {this.state.isOpen ?
+                <InfoWindow onCloseClick={this.onToggleOpen}>
+                  <div>
+                    <img src={url} alt={message} className="around-marker-image" />
+                    <div>{`${user}: ${message}`}</div>
+                  </div>
+                </InfoWindow>
+                :
+                null}
+          </Marker>
+      );
+    }
   }
 }
