@@ -38,13 +38,13 @@ class NormalCreatePostForm extends React.Component{
             rules: [
               {
                 required: true,
-                message: 'Please input your username!',
+                message: 'Please input your message!',
               },
             ],
           })(<Input />)}
         </Form.Item>
         <Form.Item label="Media">
-          {getFieldDecorator('media', {
+          {getFieldDecorator('image', {
             valuePropName: 'fileList',
             getValueFromEvent: this.normFile,
             rules: [

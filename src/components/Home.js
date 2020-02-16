@@ -13,7 +13,7 @@ import {
   POST_TYPE_IMAGE,
   POST_TYPE_VIDEO
 } from '../constants';
-//Stage 5 Finish
+//Stage 6 Start
 const { TabPane } = Tabs;
 
 export class Home extends React.Component {
