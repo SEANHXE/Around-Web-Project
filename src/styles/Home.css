@@ -9,3 +9,8 @@
     width: 220px;
     height: 400px;
 }
+
+.ant-radio-group.topic-radio-group,
+.ant-radio-group {
+    margin-bottom: 20px;
+}

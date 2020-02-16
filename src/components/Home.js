@@ -1,6 +1,6 @@
 import React from 'react';
 import '../styles/Home.css';
-import { Tabs, Spin, Row, Col } from 'antd';
+import { Tabs, Spin, Row, Col, Radio } from 'antd';
 import { Gallery } from './Gallery';
 import { CreatePostButton } from './CreatePostButton'
 import {AroundMap} from "./AroundMap"
@@ -11,7 +11,9 @@ import {
   POSITION_KEY,
   TOKEN_KEY,
   POST_TYPE_IMAGE,
-  POST_TYPE_VIDEO
+  POST_TYPE_VIDEO,
+  TOPIC_AROUND,
+  TOPIC_FACE,
 } from '../constants';
 //Stage 6 Start
 const { TabPane } = Tabs;
@@ -22,7 +24,15 @@ export class Home extends React.Component {
     loadingPosts: false,
     errorMessage: null,
     posts: [],
+    topic: TOPIC_AROUND
   }
+
+  onTopicChange = e => {
+    console.log('radio checked', e.target.value);
+    this.setState({
+      topic: e.target.value,
+    }, this.loadPost);
+  };
 
   getGeolocation() {
     this.setState({
@@ -51,7 +61,9 @@ export class Home extends React.Component {
     console.log(position);
     const {latitude, longitude} = position.coords;
     localStorage.setItem(POSITION_KEY, JSON.stringify({latitude, longitude}));
-    this.loadNearbyPost();
+    this.loadPost();
+    //this.loadNearbyPost();
+    //this.loadFacePost();
   }
 
   onGeolocationFailure = () => {
@@ -59,6 +71,17 @@ export class Home extends React.Component {
       loadingGeolocation: false,
       errorMessage: 'Failed to load geolocation',
     });
+  }
+
+  loadPost = (
+      position = JSON.parse(localStorage.getItem(POSITION_KEY)),
+      range = 200,
+  ) => {
+    if (this.state.topic === TOPIC_AROUND) {
+      this.loadNearbyPost(position, range);
+    } else if (this.state.topic === TOPIC_FACE) {
+      this.loadFacePost();
+    }
   }
 
   loadNearbyPost = (
@@ -86,11 +109,43 @@ export class Home extends React.Component {
       }
       throw new Error('Failed to load posts');
     }).then((data) => {
-        console.log(data);
-        this.setState({
-          loadingPosts: false,
-          posts: data ? data : [],
-        })
+      console.log(data);
+      this.setState({
+        loadingPosts: false,
+        posts: data ? data : [],
+      })
+    }).catch((error) => {
+      this.setState({
+        loadingPosts: false,
+        errorMessage: error.message,
+      })
+    })
+  }
+
+  loadFacePost = () => {
+    this.setState({
+      loadingPosts: true,
+      errorMessage: null,
+    });
+
+    const token = localStorage.getItem(TOKEN_KEY);
+
+    fetch(`${API_ROOT}/cluster?term=face`, {
+      method: 'GET',
+      headers: {
+        Authorization: `${AUTH_HEADER} ${token}`,
+      }
+    }).then((response) => {
+      if (response.ok) {
+        return response.json();
+      }
+      throw new Error('Failed to load posts');
+    }).then((data) => {
+      console.log(data);
+      this.setState({
+        loadingPosts: false,
+        posts: data ? data : [],
+      })
     }).catch((error) => {
       this.setState({
         loadingPosts: false,
@@ -130,35 +185,35 @@ export class Home extends React.Component {
 
   getVideoPosts() {
     return (
-      <Row gutter={32}>
-        {
-          this.state.posts
-              .filter((post) => post.type=== POST_TYPE_VIDEO)
-              .map((post) => (
-                <Col className="gutter-row" span={6}>
-                  <video src={post.url} controls className="video-block" />
-                  <div>{`${post.user}: ${post.message}`}</div>
-                </Col>
-              ))
-        }
+        <Row gutter={32}>
+          {
+            this.state.posts
+                .filter((post) => post.type=== POST_TYPE_VIDEO)
+                .map((post) => (
+                    <Col className="gutter-row" span={6}>
+                      <video src={post.url} controls className="video-block" />
+                      <div>{`${post.user}: ${post.message}`}</div>
+                    </Col>
+                ))
+          }
 
-      </Row>
+        </Row>
     );
   }
 
   getImagePosts() {
     const images = this.state.posts
-    .filter((post) => post.type=== POST_TYPE_IMAGE)
-    .map((post) => {
-      return {
-        user: post.user,
-        src: post.url,
-        thumbnail: post.url,
-        thumbnailWidth: 400,
-        thumbnailHeight: 300,
-        caption: post.message
-      }
-    });
+        .filter((post) => post.type=== POST_TYPE_IMAGE)
+        .map((post) => {
+          return {
+            user: post.user,
+            src: post.url,
+            thumbnail: post.url,
+            thumbnailWidth: 400,
+            thumbnailHeight: 300,
+            caption: post.message
+          }
+        });
 
     return (<Gallery images={images} />);
   }
@@ -168,26 +223,32 @@ export class Home extends React.Component {
   }
 
   render() {
-    const operations = <CreatePostButton onSuccess={this.loadNearbyPost}/>;
+    const operations = <CreatePostButton onSuccess={this.loadPost}/>;
     return (
-        <Tabs tabBarExtraContent={operations} className="main-tabs">
-          <TabPane tab="Images Posts" key="1">
-            {this.getPost(POST_TYPE_IMAGE)}
-          </TabPane>
-          <TabPane tab="Video Posts" key="2">
-            {this.getPost(POST_TYPE_VIDEO)}
-          </TabPane>
-          <TabPane tab="Maps" key="3">
-            <AroundMap
-              googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyD3CEh9DXuyjozqptVB5LA-dN7MxWWkr9s&v=3.exp&libraries=geometry,drawing,places"
-              loadingElement={<div style={{ height: `100%` }} />}
-              containerElement={<div style={{ height: `700px` }} />}
-              mapElement={<div style={{ height: `100%` }} />}
-              posts={this.state.posts}
-              onChange={this.loadNearbyPost}
-            />
-          </TabPane>
-        </Tabs>
+        <div>
+          <Radio.Group onChange={this.onTopicChange} value={this.state.topic} className="topic-radio-group">
+            <Radio value={TOPIC_AROUND}>Posts Around Me</Radio>
+            <Radio value={TOPIC_FACE}>Faces Around The World</Radio>
+          </Radio.Group>
+          <Tabs tabBarExtraContent={operations} className="main-tabs">
+            <TabPane tab="Images Posts" key="1">
+              {this.getPost(POST_TYPE_IMAGE)}
+            </TabPane>
+            <TabPane tab="Video Posts" key="2">
+              {this.getPost(POST_TYPE_VIDEO)}
+            </TabPane>
+            <TabPane tab="Maps" key="3">
+              <AroundMap
+                  googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyD3CEh9DXuyjozqptVB5LA-dN7MxWWkr9s&v=3.exp&libraries=geometry,drawing,places"
+                  loadingElement={<div style={{ height: `100%` }} />}
+                  containerElement={<div style={{ height: `700px` }} />}
+                  mapElement={<div style={{ height: `100%` }} />}
+                  posts={this.state.posts}
+                  onChange={this.loadPost}
+              />
+            </TabPane>
+          </Tabs>
+        </div>
     );
   }
 }
